@@ -18,26 +18,38 @@ services:
         - 3001:${NEST_PORT}
     env_file: .env
     environment:
-      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_HOST: db
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
+    depends_on:
+      db:
+        condition: service_healthy
   db:
-    image: postgres:latest
+    image: kartoza/postgis:${POSTGIS_VERSION_TAG}
     container_name: postgres
-    restart: always
+    restart: on-failure
     env_file: .env
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      ALLOW_IP_RANGE: ${ALLOW_IP_RANGE}
+      FORCE_SSL: TRUE
+      SSL_MODE: allow
     ports:
       - 5433:${DATABASE_PORT}
     volumes:
-      - postgres_data:/var/lib/postgresql/data  
+      - geo-db-data:/var/lib/postgresql
+    healthcheck:
+      test: "PGPASSWORD=${DATABASE_PASSWORD} pg_isready -h 127.0.0.1 -U ${DATABASE_USER} -d ${DATABASE_NAME}"
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 1m
   geoserver:
-    image: kartoza/geoserver:2.22.0
+    image: kartoza/geoserver:${GS_VERSION}
     container_name: geoserver
     volumes:
       - geoserver-data:/opt/geoserver/data_dir
@@ -65,6 +77,9 @@ services:
       SSL_MODE: allow                    
       POSTGRES_SCHEMA: public           
       DISK_QUOTA_SIZE: 5 
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: "curl --fail --silent --write-out 'HTTP CODE : %{http_code}\n' --output /dev/null -u admin:'geoserver' http://localhost:8080/geoserver/rest/about/version.xml"
       interval: 1m30s
@@ -73,4 +88,4 @@ services:
       
 volumes:
   geoserver-data: {}
-  postgres_data:
+  geo-db-data:

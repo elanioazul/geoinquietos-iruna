@@ -1,0 +1,7 @@
+{
+  "/geoserver": {
+    "target": "http://geoserver:8080",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

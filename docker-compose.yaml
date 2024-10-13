@@ -6,6 +6,10 @@ services:
     container_name: angular
     ports: 
       - 4201:80
+    # networks:
+    #   - geoinquietos-network
+    depends_on:
+      - geoserver
   back:
     #build: ./back
     build:
@@ -56,6 +60,8 @@ services:
     ports:
        - 8080:8080
     restart: on-failure
+    # networks:
+    #   - geoinquietos-network
     env_file: .env
     environment:
       GEOSERVER_DATA_DIR: '/opt/geoserver/data_dir'
@@ -89,3 +95,7 @@ services:
 volumes:
   geoserver-data: {}
   geo-db-data:
+
+# networks:
+#   geoinquietos-network:
+#     driver: bridge

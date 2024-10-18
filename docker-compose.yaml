@@ -11,7 +11,6 @@ services:
     depends_on:
       - geoserver
   back:
-    #build: ./back
     build:
       context: ./back
       target: dev

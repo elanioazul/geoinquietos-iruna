@@ -6,8 +6,8 @@ services:
     container_name: angular
     ports: 
       - 4201:80
-    # networks:
-    #   - geoinquietos-network
+    networks:
+      - geoinquietos-network
     depends_on:
       - geoserver
   back:
@@ -20,6 +20,8 @@ services:
     ports: 
         - 3001:${NEST_PORT}
     env_file: .env
+    networks:
+      - geoinquietos-network
     environment:
       DATABASE_HOST: db
       DATABASE_PORT: ${DATABASE_PORT}
@@ -39,12 +41,15 @@ services:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       ALLOW_IP_RANGE: ${ALLOW_IP_RANGE}
-      FORCE_SSL: TRUE
-      SSL_MODE: allow
+      # FORCE_SSL: TRUE
+      # SSL_MODE: allow
     ports:
       - 5433:${DATABASE_PORT}
     volumes:
       - geo-db-data:/var/lib/postgresql
+      - ./postgres-config/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    networks:
+      - geoinquietos-network
     healthcheck:
       test: "PGPASSWORD=${DATABASE_PASSWORD} pg_isready -h 127.0.0.1 -U ${DATABASE_USER} -d ${DATABASE_NAME}"
       interval: 1m30s
@@ -59,8 +64,8 @@ services:
     ports:
        - 8080:8080
     restart: on-failure
-    # networks:
-    #   - geoinquietos-network
+    networks:
+      - geoinquietos-network
     env_file: .env
     environment:
       GEOSERVER_DATA_DIR: '/opt/geoserver/data_dir'
@@ -79,7 +84,7 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}                  
       POSTGRES_USER: ${DATABASE_USER}    
       POSTGRES_PASS: ${DATABASE_PASSWORD}  
-      SSL_MODE: allow                    
+      # SSL_MODE: allow                    
       POSTGRES_SCHEMA: public           
       DISK_QUOTA_SIZE: 5 
     depends_on:
@@ -95,6 +100,6 @@ volumes:
   geoserver-data: {}
   geo-db-data:
 
-# networks:
-#   geoinquietos-network:
-#     driver: bridge
+networks:
+  geoinquietos-network:
+    driver: bridge

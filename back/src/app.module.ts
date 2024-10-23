@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FlotaModule } from './flota/flota.module';
+import { SocketModule } from './socket/socket.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -20,6 +22,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         },
       },
     }),
+    FlotaModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

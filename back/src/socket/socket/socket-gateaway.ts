@@ -25,11 +25,18 @@ export class SocketGateway implements OnGatewayConnection {
     this.socketService.handleConnection(socket);
   }
 
-  @SubscribeMessage('mensaje')
-  handleMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  @SubscribeMessage('messageToAll')
+  handleMessage(@MessageBody() data: any) {
     console.log(data);
-    this.server.emit('mensaje', data);
+    this.server.emit('mensajeParaTodos', data);
+  }
+
+  @SubscribeMessage('messageToAllExceptMe')
+  handleMessageToAll(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     // console.log(client.id);
-    // client.broadcast.emit('mensaje', data);
+    client.broadcast.emit('mensajeParaTodosMenoYo', data);
   }
 }

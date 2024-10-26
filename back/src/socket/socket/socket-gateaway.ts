@@ -9,6 +9,8 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { SocketService } from './socket.service';
+import { LocationUpdateDto } from '../dto/update-unidad-flota';
+import { FlotaService } from 'src/flota/flota.service';
 
 @WebSocketGateway({
   cors: {
@@ -19,7 +21,10 @@ export class SocketGateway implements OnGatewayConnection {
   @WebSocketServer()
   private server: Socket;
 
-  constructor(private readonly socketService: SocketService) {}
+  constructor(
+    private readonly socketService: SocketService,
+    private readonly flotaService: FlotaService,
+  ) {}
 
   handleConnection(socket: Socket): void {
     this.socketService.handleConnection(socket);
@@ -31,12 +36,13 @@ export class SocketGateway implements OnGatewayConnection {
     this.server.emit('mensajeParaTodos', data);
   }
 
-  @SubscribeMessage('messageToAllExceptMe')
-  handleMessageToAll(
+  @SubscribeMessage('updateLocation')
+  async handleMessageToAll(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() data: LocationUpdateDto,
   ) {
+    await this.flotaService.updateLocation(data.id, data.lon, data.lat);
     // console.log(client.id);
-    client.broadcast.emit('mensajeParaTodosMenoYo', data);
+    client.broadcast.emit('locationChanged', data);
   }
 }

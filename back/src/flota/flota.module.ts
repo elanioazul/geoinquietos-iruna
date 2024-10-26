@@ -10,5 +10,6 @@ import { PuntosFlotaMunicipalRecargaVehiculosElectricos } from './entities/flota
   ],
   providers: [FlotaService],
   controllers: [FlotaController],
+  exports: [FlotaService],
 })
 export class FlotaModule {}

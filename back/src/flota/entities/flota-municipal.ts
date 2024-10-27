@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, Generated } from 'typeorm';
+import { Entity, Column, PrimaryColumn, Generated } from 'typeorm';
 import { Geometry } from 'geojson';
 
 @Entity('puntos_flota_municipal_recarga_vehiculos_electricos')
 export class PuntosFlotaMunicipalRecargaVehiculosElectricos {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   ogc_fid: number;
 
   @Column()

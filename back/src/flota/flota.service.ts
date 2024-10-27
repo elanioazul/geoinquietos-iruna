@@ -20,11 +20,13 @@ export class FlotaService {
   }
 
   async updateLocation(id: number, lon: number, lat: number): Promise<void> {
-    await this.flotaRepository.update(id, {
-      wkb_geometry: {
+    const found = await this.flotaRepository.findOne({ where: { id: id } });
+    if (found) {
+      found.wkb_geometry = {
         type: 'Point',
         coordinates: [lon, lat],
-      } as unknown as Geometry,
-    });
+      } as unknown as Geometry;
+      await this.flotaRepository.save(found);
+    }
   }
 }

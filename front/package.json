@@ -22,6 +22,7 @@
     "primeflex": "^3.3.0",
     "proj4": "^2.9.0",
     "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.1",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"
   },

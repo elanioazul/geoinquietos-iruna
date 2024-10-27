@@ -12,8 +12,13 @@ import GeoJSON from 'ol/format/GeoJSON';
 import * as olLoadingstrategy from 'ol/loadingstrategy';
 import { Cluster } from 'ol/source';
 import Style from 'ol/style/Style';
-import Fill from 'ol/style/Fill';
-import CircleStyle from 'ol/style/Circle.js';
+import { environment } from 'src/environments/environment';
+import Icon from 'ol/style/Icon';
+import { RealTimeService } from '../core/services/real-time.service';
+import { catchError, map, tap } from 'rxjs';
+import { RealTimeSocketIoService } from '../core/services/real-time-socket-io.service';
+import { Message } from '../interfaces/message';
+
 @Component({
   selector: 'app-visor',
   templateUrl: './visor.component.html',
@@ -21,21 +26,19 @@ import CircleStyle from 'ol/style/Circle.js';
 })
 export class VisorComponent implements AfterViewInit {
 
-  geoserverPath = '/geoserver/ows?';
-
   @ViewChild('map', { static: false }) mapElement!: ElementRef;
   public map!: Map;
 
   pointsNoClusterLyr!: VectorLayer<VectorSource<Feature<Geometry>>>;
   //pointsClusterLyr!: VectorLayer<VectorSource<Feature<Geometry>>>;
 
-  pointStyle = new Style({
-    image: new CircleStyle({
-      radius: 6,
-      fill: new Fill({
-        color: 'purple'
-      })
-    })
+  iconStyle = new Style({
+    image: new Icon({
+      anchor: [0.5, 12],
+      anchorXUnits: 'fraction',
+      anchorYUnits: 'pixels',
+      src: '../../assets/pin.png',
+    }),
   });
 
   finalUrlParams = [
@@ -52,7 +55,7 @@ export class VisorComponent implements AfterViewInit {
     // url: (extent) => {
     //   return this.geoserverPath.concat(this.finalUrlParams.join('&')).concat(`&bbox=` + extent)
     // },
-    url: this.geoserverPath.concat(this.finalUrlParams.join('&')),
+    url: environment.basePathGeoserver.concat(this.finalUrlParams.join('&')),
     format: new GeoJSON(),
     strategy: olLoadingstrategy.all
   });
@@ -62,7 +65,18 @@ export class VisorComponent implements AfterViewInit {
     source: this.lyrSource,
   });
 
-  constructor() {}
+  // constructor(private realTimeService: RealTimeService) {
+  //   this.realTimeService.messages$.pipe(
+  //     map(data => console.log(data)),
+  //     catchError(error => {throw error}),
+  //     tap({
+  //       error: error => console.log('[Live component] Error: ',
+  //         error),
+  //       complete: () => console.log('[Live component] Connection closed')
+  //     })
+  //   )
+  // }
+  constructor(private realTimeServiceSocketIo: RealTimeSocketIoService) {}
 
 
   ngAfterViewInit(): void {
@@ -71,7 +85,7 @@ export class VisorComponent implements AfterViewInit {
       source: this.lyrSource,
       visible: true,
       opacity: 1,
-      style: this.pointStyle
+      style: this.iconStyle
     })
     this.map = new Map({
       layers: [
@@ -88,5 +102,17 @@ export class VisorComponent implements AfterViewInit {
       }),
       controls: [],
     });
+    this.realTimeServiceSocketIo.onMessage().subscribe((data: Message) => {
+      console.log('dato de socketIoooo');
+
+      console.log(data)
+      this.updateFeature(data)
+    })
+  }
+
+  private updateFeature(data: Message): void {
+    const feats = this.pointsNoClusterLyr.getSource()?.getFeatures();
+    console.log(feats);
+
   }
 }

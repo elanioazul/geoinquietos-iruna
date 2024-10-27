@@ -7,7 +7,7 @@ import View from 'ol/View';
 import Feature from 'ol/Feature';
 import * as olCoordinate from 'ol/coordinate';
 import TileLayer from 'ol/layer/Tile.js';
-import { Geometry } from 'ol/geom';
+import { Geometry, Point } from 'ol/geom';
 import GeoJSON from 'ol/format/GeoJSON';
 import * as olLoadingstrategy from 'ol/loadingstrategy';
 import { Cluster } from 'ol/source';
@@ -103,16 +103,18 @@ export class VisorComponent implements AfterViewInit {
       controls: [],
     });
     this.realTimeServiceSocketIo.onMessage().subscribe((data: Message) => {
-      console.log('dato de socketIoooo');
-
-      console.log(data)
       this.updateFeature(data)
     })
   }
 
   private updateFeature(data: Message): void {
     const feats = this.pointsNoClusterLyr.getSource()?.getFeatures();
-    console.log(feats);
+    feats?.forEach((feat: Feature) => {
+      if (data.id = feat.getProperties()['id']) {
+        (feat.getGeometry() as Point).setCoordinates([data.lon, data.lat])
+        this.pointsNoClusterLyr.changed();
+      }
+    })
 
   }
 }

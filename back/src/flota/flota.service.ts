@@ -15,16 +15,12 @@ export class FlotaService {
   }
   findOne(id: number) {
     return this.flotaRepository.findOneBy({
-      ogc_fid: id,
+      id: id,
     });
   }
 
-  async updateLocation(
-    ogc_fid: number,
-    lon: number,
-    lat: number,
-  ): Promise<void> {
-    await this.flotaRepository.update(ogc_fid, {
+  async updateLocation(id: number, lon: number, lat: number): Promise<void> {
+    await this.flotaRepository.update(id, {
       wkb_geometry: {
         type: 'Point',
         coordinates: [lon, lat],

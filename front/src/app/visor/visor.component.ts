@@ -108,13 +108,9 @@ export class VisorComponent implements AfterViewInit {
   }
 
   private updateFeature(data: Message): void {
-    const feats = this.pointsNoClusterLyr.getSource()?.getFeatures();
-    feats?.forEach((feat: Feature) => {
-      if (data.id = feat.getProperties()['id']) {
-        (feat.getGeometry() as Point).setCoordinates([data.lon, data.lat])
-        this.pointsNoClusterLyr.changed();
-      }
-    })
-
+    const found = this.pointsNoClusterLyr.getSource()?.getFeatures().find((feat: Feature) => feat.get('id') === data.id);
+    if (found) {
+      (found.getGeometry() as Point).setCoordinates([data.lon, data.lat])
+    }
   }
 }

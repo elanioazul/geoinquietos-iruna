@@ -23,16 +23,16 @@ Points location are persisted in DB as the locationChanged message is listened b
     * One is going to be the sender (simulating the kafka tailing messages arriving)
     
     * The other, coupled with the frontend app, will be the listeners of the messages arrived realtime. How? Follow this steps:
-        - Postman sender tab: Event name: `updateLocation` and message in json format: 
+        - Postman sender tab has to establish conexion with **http://localhost:3001** and its event name is `updateLocation` and its message in json format has to be: 
         ```json
             "id": select the id of any of the rows in the DB (one you know where is located in the map and wanna see realtime changing),
             "lon": select the lon in 4326 system projection where you want to update the point location
             "lat": select the lat in 4326 system projection where you want to update the point location,
         ```
 
-        - Postman listener tab: Event name: `locationChanged`
+        - Postman listener tab also establish conexion with **http://localhost:3001** and its event name is: `locationChanged`
 
-        - Frontend app: its already listening to `locationChanged`. Do nothing with it but looking to the target point of `updateLocation` event.
+        - Frontend app: its already listening to `locationChanged`. Do nothing with it but looking to the map target point of `updateLocation` event.
         
         - Send updateLocation message from postman sender tab
             
